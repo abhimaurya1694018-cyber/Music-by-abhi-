@@ -10,7 +10,7 @@ const playlists=[
  {name:"Vevo Playlist 2",sub:"More VEVO favourites",img:"images/bg-2.jpg",id:"PLesm76O8GFZMRacpw0JaW8oBq7gzlyS7L",url:"https://youtube.com/playlist?list=PLesm76O8GFZMRacpw0JaW8oBq7gzlyS7L"}
 ];
 
-let current=2, player=null, shuffle=false, repeat=false;
+let current=2, player=null, shuffle=false, repeat=false, userHasStartedPlayback=false;
 
 function setBackground(path){document.querySelector("#background").style.backgroundImage=`url("${path}")`}
 
@@ -32,7 +32,7 @@ function render(){
  document.querySelectorAll(".drawer-item").forEach(b=>b.onclick=()=>{selectPlaylist(Number(b.dataset.i),true);document.querySelector("#drawer").classList.remove("open")});
 }
 
-function selectPlaylist(index,autoplay){
+function selectPlaylist(index, shouldPlay=false){
  current=index;
  const p=playlists[index];
  setBackground(p.img);
@@ -41,15 +41,23 @@ function selectPlaylist(index,autoplay){
  document.querySelector("#playerPanel").classList.add("open");
  document.querySelector("#youtubeBtn").onclick=()=>window.open(p.url,"_blank","noopener");
 
+ // IMPORTANT:
+ // Selecting/swiping a playlist must NEVER start or switch playback by itself.
+ // Only an explicit user Play/Listen action may load/play a YouTube playlist.
+ if(!shouldPlay) {
+   document.querySelector("#playerStatus").textContent =
+     p.id ? "Selected — press Play to listen" : "Selected — open on YouTube to listen";
+   return;
+ }
+
  if(!player) return;
 
  if(p.id){
    document.querySelector("#playerStatus").textContent="Loading YouTube playlist…";
    player.loadPlaylist({listType:"playlist",list:p.id,index:0});
-   if(autoplay) setTimeout(()=>player.playVideo(),250);
+   setTimeout(()=>player.playVideo(),250);
  }else{
-   player.stopVideo();
-   document.querySelector("#playerStatus").textContent="YouTube Mix — use Open on YouTube";
+   document.querySelector("#playerStatus").textContent="This Mix opens on YouTube";
  }
 }
 
@@ -87,9 +95,20 @@ document.querySelector("#startListening").onclick=()=>{
 
 document.querySelector("#playBtn").onclick=()=>{
  if(!player)return;
+ const p=playlists[current];
+ if(!p.id){
+   window.open(p.url,"_blank","noopener");
+   return;
+ }
  const state=player.getPlayerState();
- if(state===YT.PlayerState.PLAYING) player.pauseVideo();
- else player.playVideo();
+ if(state===YT.PlayerState.PLAYING){
+   player.pauseVideo();
+ }else{
+   // Explicit Play click: load the currently selected playlist, then play.
+   player.loadPlaylist({listType:"playlist",list:p.id,index:0});
+   setTimeout(()=>player.playVideo(),250);
+   userHasStartedPlayback=true;
+ }
 };
 document.querySelector("#nextBtn").onclick=()=>player&&player.nextVideo();
 document.querySelector("#prevBtn").onclick=()=>player&&player.previousVideo();
@@ -129,8 +148,9 @@ window.addEventListener("touchstart",e=>touchStartY=e.touches[0].clientY,{passiv
 window.addEventListener("touchend",e=>{
  const dy=e.changedTouches[0].clientY-touchStartY;
  if(Math.abs(dy)>100){
-   current=dy<0?(current+1)%playlists.length:(current-1+playlists.length)%playlists.length;
-   selectPlaylist(current,true);
+   current=dy<0 ? (current+1)%playlists.length : (current-1+playlists.length)%playlists.length;
+   // Swipe is navigation only. It must NOT start/switch songs.
+   selectPlaylist(current,false);
  }
 },{passive:true});
 
