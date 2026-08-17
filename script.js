@@ -1,16 +1,17 @@
 const $=s=>document.querySelector(s);
 
 const playlists=[
- {name:"Bhojpuri Party",sub:"Party-ready Bhojpuri favourites",img:"images/bg-1.jpg",id:null,url:"https://youtube.com/playlist?list=RDCLAK5uy_n7VIYx-oWOJQanlpBG6GRyLZxpWYMltB8"},
- {name:"Bhojpuri Energy Booster",sub:"High-energy Bhojpuri mix",img:"images/bg-2.jpg",id:null,url:"https://youtube.com/playlist?list=RDCLAK5uy_ltBUnE76-ol1ufdgUWN4T7WtFljvu8gYM"},
- {name:"Bhojpuri Hits",sub:"Your Bhojpuri favourites",img:"images/bg-3.jpg",id:"PLXzuhrtrzRpEQAewoF4HvqjnoO8TPcSJk",url:"https://youtube.com/playlist?list=PLXzuhrtrzRpEQAewoF4HvqjnoO8TPcSJk"},
- {name:"90s Hindi Hits",sub:"90s Hindi songs",img:"images/bg-4.jpg",id:"PLMRKdK25AuPVjHl9Kdb-gkBy0Cm7Zi2xo",url:"https://youtube.com/playlist?list=PLMRKdK25AuPVjHl9Kdb-gkBy0Cm7Zi2xo"},
- {name:"90s Hindi Hits 2",sub:"More 90s Hindi nostalgia",img:"images/bg-5.jpg",id:"PLAFjPVdERAkt7jNU1XW7EWXHLyYyf7Sux",url:"https://youtube.com/playlist?list=PLAFjPVdERAkt7jNU1XW7EWXHLyYyf7Sux"},
- {name:"Vevo Playlist 1",sub:"VEVO music selection",img:"images/bg-1.jpg",id:"PLDIoUOhQQPlWt8OpaGG43OjNYuJ2q9jEN",url:"https://youtube.com/playlist?list=PLDIoUOhQQPlWt8OpaGG43OjNYuJ2q9jEN"},
- {name:"Vevo Playlist 2",sub:"More VEVO favourites",img:"images/bg-2.jpg",id:"PLesm76O8GFZMRacpw0JaW8oBq7gzlyS7L",url:"https://youtube.com/playlist?list=PLesm76O8GFZMRacpw0JaW8oBq7gzlyS7L"}
+ {name:"90s Hindi Hits 1",sub:"90s Hindi songs • Playlist 1",img:"images/bg-1.jpg",id:"PLMRKdK25AuPVjHl9Kdb-gkBy0Cm7Zi2xo",url:"https://youtube.com/playlist?list=PLMRKdK25AuPVjHl9Kdb-gkBy0Cm7Zi2xo"},
+ {name:"90s Hindi Hits 2",sub:"90s Hindi songs • Playlist 2",img:"images/bg-2.jpg",id:"PLAFjPVdERAkt7jNU1XW7EWXHLyYyf7Sux",url:"https://youtube.com/playlist?list=PLAFjPVdERAkt7jNU1XW7EWXHLyYyf7Sux"},
+ {name:"Vevo Playlist 1",sub:"VEVO music selection",img:"images/bg-3.jpg",id:"PLDIoUOhQQPlWt8OpaGG43OjNYuJ2q9jEN",url:"https://youtube.com/playlist?list=PLDIoUOhQQPlWt8OpaGG43OjNYuJ2q9jEN"},
+ {name:"Vevo Playlist 2",sub:"More VEVO favourites",img:"images/bg-4.jpg",id:"PLesm76O8GFZMRacpw0JaW8oBq7gzlyS7L",url:"https://youtube.com/playlist?list=PLesm76O8GFZMRacpw0JaW8oBq7gzlyS7L"},
+ {name:"Bhojpuri Playlist 1",sub:"Bhojpuri YouTube Mix",img:"images/bg-5.jpg",id:null,url:"https://youtube.com/playlist?list=RDcQM55aOrZCg&playnext=1"},
+ {name:"Bhojpuri Playlist 2",sub:"Bhojpuri YouTube Mix",img:"images/bg-1.jpg",id:null,url:"https://youtube.com/playlist?list=RDzmwfd8x0DrM&playnext=1"},
+ {name:"Bhojpuri Playlist 3",sub:"Bhojpuri YouTube Mix",img:"images/bg-2.jpg",id:null,url:"https://youtube.com/playlist?list=RDNHps0T2q0bI&playnext=1"},
+ {name:"Bhojpuri Playlist 4",sub:"Bhojpuri YouTube Mix",img:"images/bg-3.jpg",id:null,url:"https://youtube.com/playlist?list=RDSwFjNdgISyM&playnext=1"}
 ];
 
-let current=2, player=null, shuffle=false, repeat=false, userHasStartedPlayback=false;
+let current=0, player=null, shuffle=false, repeat=false, userHasStartedPlayback=false;
 
 function setBackground(path){document.querySelector("#background").style.backgroundImage=`url("${path}")`}
 
@@ -25,11 +26,11 @@ function render(){
  <button class="playlist-card" data-i="${i}" style="background-image:url('${p.img}')">
   <div><strong>${p.name}</strong><span>${p.sub}</span></div>
  </button>`).join("");
- document.querySelectorAll(".playlist-card").forEach(b=>b.onclick=()=>selectPlaylist(Number(b.dataset.i),true));
+ document.querySelectorAll(".playlist-card").forEach(b=>b.onclick=()=>selectPlaylist(Number(b.dataset.i),false));
 
  document.querySelector("#drawerList").innerHTML=playlists.map((p,i)=>`
  <button class="drawer-item" data-i="${i}"><strong>${p.name}</strong><span>${p.sub}</span></button>`).join("");
- document.querySelectorAll(".drawer-item").forEach(b=>b.onclick=()=>{selectPlaylist(Number(b.dataset.i),true);document.querySelector("#drawer").classList.remove("open")});
+ document.querySelectorAll(".drawer-item").forEach(b=>b.onclick=()=>{selectPlaylist(Number(b.dataset.i),false);document.querySelector("#drawer").classList.remove("open")});
 }
 
 function selectPlaylist(index, shouldPlay=false){
@@ -66,7 +67,10 @@ function onYouTubeIframeAPIReady(){
   width:"200",height:"200",
   playerVars:{autoplay:0,controls:0,playsinline:1,rel:0,iv_load_policy:3},
   events:{
-   onReady:()=>{},
+   onReady:()=>{
+   // Never autoplay on page load.
+   try{ player.pauseVideo(); }catch(e){}
+ },
    onStateChange:e=>{
     if(e.data===YT.PlayerState.PLAYING){
       document.querySelector("#playBtn").textContent="❚❚";
@@ -94,8 +98,11 @@ document.querySelector("#startListening").onclick=()=>{
 };
 
 document.querySelector("#playBtn").onclick=()=>{
- if(!player)return;
  const p=playlists[current];
+ if(!player){
+   if(!p.id) window.open(p.url,"_blank","noopener");
+   return;
+ }
  if(!p.id){
    window.open(p.url,"_blank","noopener");
    return;
@@ -103,12 +110,14 @@ document.querySelector("#playBtn").onclick=()=>{
  const state=player.getPlayerState();
  if(state===YT.PlayerState.PLAYING){
    player.pauseVideo();
+ }else if(state===YT.PlayerState.PAUSED || state===YT.PlayerState.CUED){
+   player.playVideo();
  }else{
-   // Explicit Play click: load the currently selected playlist, then play.
+   // ONLY an explicit Play click can load a new playlist.
    player.loadPlaylist({listType:"playlist",list:p.id,index:0});
    setTimeout(()=>player.playVideo(),250);
-   userHasStartedPlayback=true;
  }
+ userHasStartedPlayback=true;
 };
 document.querySelector("#nextBtn").onclick=()=>player&&player.nextVideo();
 document.querySelector("#prevBtn").onclick=()=>player&&player.previousVideo();
@@ -149,7 +158,7 @@ window.addEventListener("touchend",e=>{
  const dy=e.changedTouches[0].clientY-touchStartY;
  if(Math.abs(dy)>100){
    current=dy<0 ? (current+1)%playlists.length : (current-1+playlists.length)%playlists.length;
-   // Swipe is navigation only. It must NOT start/switch songs.
+   // Swipe = navigation only. Never load or play YouTube.
    selectPlaylist(current,false);
  }
 },{passive:true});
