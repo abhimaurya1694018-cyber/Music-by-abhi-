@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08080c">
+<title>Abhi Playlist</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="background"></div>
+<div class="background-overlay"></div>
+<div id="touchFx"></div>
+
+<header class="topbar">
+  <button class="brand" id="homeBtn"><span class="bars">▮▮</span> ABHI PLAYLIST</button>
+  <button class="circle-btn" id="menuBtn" aria-label="Open playlists">☰</button>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">YOUR MUSIC • YOUR MOOD</div>
+    <h1>Abhi <span>Playlist</span></h1>
+    <p>Pick a mood. Press play. Let the night change.</p>
+  </section>
+
+  <section class="featured" id="featured"></section>
+
+  <section class="library">
+    <div class="section-title">
+      <div><div class="eyebrow">EXPLORE</div><h2>Playlists</h2></div>
+      <button id="seeAll" class="see-all">See all ↗</button>
+    </div>
+    <div class="playlist-grid" id="playlistGrid"></div>
+  </section>
+</main>
+
+<!-- Official YouTube IFrame player. Kept as a secondary playback surface. -->
+<div id="youtubeHost" aria-hidden="true"></div>
+
+<section class="player" id="playerPanel" aria-label="Music player">
+  <img id="playerArt" class="player-art" alt="">
+  <div class="player-info">
+    <div class="eyebrow tiny">NOW PLAYING</div>
+    <strong id="playerTitle">Choose a playlist</strong>
+    <span id="playerStatus">Tap Start Listening</span>
+  </div>
+  <button class="close-player" id="closePlayer">×</button>
+  <div class="trackline"><span id="trackProgress"></span></div>
+  <div class="player-controls">
+    <button id="shuffleBtn">⌘</button>
+    <button id="prevBtn">⏮</button>
+    <button id="playBtn" class="main-play">▶</button>
+    <button id="nextBtn">⏭</button>
+    <button id="repeatBtn">↻</button>
+  </div>
+  <button class="youtube-btn" id="youtubeBtn">Open on YouTube ↗</button>
+</section>
+
+<div class="start-screen" id="startScreen">
+  <div class="start-card">
+    <div class="spark">✦</div>
+    <div class="eyebrow">ABHI PLAYLIST</div>
+    <h2>Ready for your mood?</h2>
+    <p>Tap once to start listening. Your music stays inside this experience when YouTube allows embedded playback.</p>
+    <button id="startListening">Start Listening <b>▶</b></button>
+  </div>
+</div>
+
+<aside class="drawer" id="drawer">
+  <div class="drawer-top">
+    <div><div class="eyebrow">YOUR LIBRARY</div><h2>Playlists</h2></div>
+    <button class="circle-btn" id="closeDrawer">×</button>
+  </div>
+  <div id="drawerList"></div>
+</aside>
+
+<script src="script.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
